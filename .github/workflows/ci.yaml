@@ -23,26 +23,26 @@ jobs:
  
       - name: Pull Latest Code Using GitHub Token
         run: |
-          ssh "${{ secrets.HOST_USER }}@${{ secrets.HOST_GIT_EC2 }}" << 'EOF'
-            set -euxo pipefail
+          ssh ${{secrets.HOST_USER}}@${{secrets.HOST_GIT_EC2}} << 'EOF'
+            set -x  # Enable debug output
             cd /home/ubuntu/intelerad_server_prod/intelerad_server
-            git pull https://${{ secrets.ACCESS_TOKEN }}@github.com/bkrusch/intelerad_server.git main
+            git pull https://${{secrets.ACCESS_TOKEN}}@github.com/bkrusch/intelerad_server.git main
             sudo pm2 reload intelerad-prod
-            sudo pm2 list
+            sudo pm2 list  # Verify process
           EOF
           
       - name: Notify Slack on failure
         if: failure()
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{
-            "text": ":x: *Intelerad | Prod | Deployment FAILED* for `${{github.repository}}` on branch `${{github.ref_name}}`.\nView details: <${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}>",
+            "text": ":x: *Intelerad | Prod | Deployment FAILED* for `${{ github.repository }}` on branch `${{ github.ref_name }}`.\nView details: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>",
             "username": "GitHub Actions"
-         }' ${{secrets.SLACK_WEBHOOK_URL}}
-         
+          }' "${{ secrets.SLACK_WEBHOOK_URL }}"
+          
       - name: Notify Slack on success
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{
-            "text": ":white_check_mark: *Intelerad | Prod | Deployment SUCCESSFUL* for `${{github.repository}}` on branch `${{github.ref_name}}`.\nView details: <${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}>",
+            "text": ":white_check_mark: *Intelerad | Prod | Deployment SUCCESSFUL* for `${{ github.repository }}` on branch `${{ github.ref_name }}`.\nView details: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>",
             "username": "GitHub Actions"
-         }' ${{secrets.SLACK_WEBHOOK_URL}}
+          }' "${{ secrets.SLACK_WEBHOOK_URL }}"
