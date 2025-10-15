@@ -35,14 +35,14 @@ jobs:
         if: failure()
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{
-            "text": ":x: *Intelerad | Prod | Deployment FAILED* for `${{ github.repository }}` on branch `${{ github.ref_name }}`.\nView details: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>",
+            "text": ":x: *Intelerad | Prod | Deployment FAILED* for `${{github.repository}}` on branch `${{github.ref_name}}`.\nView details: <${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}>",
             "username": "GitHub Actions"
-          }' "${{ secrets.SLACK_WEBHOOK_URL }}"
-          
+          }' ${{secrets.SLACK_WEBHOOK_URL}}
+         
       - name: Notify Slack on success
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{
-            "text": ":white_check_mark: *Intelerad | Prod | Deployment SUCCESSFUL* for `${{ github.repository }}` on branch `${{ github.ref_name }}`.\nView details: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>",
+            "text": ":white_check_mark: *Intelerad | Prod | Deployment SUCCESSFUL* for `${{github.repository}}` on branch `${{github.ref_name}}`.\nView details: <${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}>",
             "username": "GitHub Actions"
-          }' "${{ secrets.SLACK_WEBHOOK_URL }}"
+          }' ${{secrets.SLACK_WEBHOOK_URL}}
