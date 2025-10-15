@@ -3,7 +3,6 @@ name: "Prod | Deploy to EC2 and Restart PM2"
 on:
   push:
     branches: [main]  # Trigger on pushes to main branch
-  workflow_dispatch: {}
  
 jobs:
   deploy:
