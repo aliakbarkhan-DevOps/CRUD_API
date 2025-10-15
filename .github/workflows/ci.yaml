@@ -1,4 +1,4 @@
-name: "Prod | Deploy to EC2 and Restart PM2"
+name: Deploy to EC2 and Restart PM2
 
 on:
   push:
