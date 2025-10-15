@@ -1,10 +1,10 @@
-name: Deploy to EC2 and Restart PM2
-
+name: "Prod | Deploy to EC2 and Restart PM2"
+ 
 on:
   push:
-    branches: [main]
+    branches: [main]  # Trigger on pushes to main branch
   workflow_dispatch: {}
-
+ 
 jobs:
   deploy:
     name: Deploy and Restart
@@ -13,15 +13,14 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-
+ 
       - name: Set up SSH for EC2
         run: |
           mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          printf "%s" "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{secrets.EC2_SSH_KEY}}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "${{ secrets.HOST_GIT_EC2 }}" >> ~/.ssh/known_hosts
-
+          ssh-keyscan -H ${{secrets.HOST_GIT_EC2}} >> ~/.ssh/known_hosts
+ 
       - name: Pull Latest Code Using GitHub Token
         run: |
           ssh "${{ secrets.HOST_USER }}@${{ secrets.HOST_GIT_EC2 }}" << 'EOF'
@@ -31,17 +30,19 @@ jobs:
             sudo pm2 reload intelerad-prod
             sudo pm2 list
           EOF
+          
       - name: Notify Slack on failure
         if: failure()
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{
-            "text": ":x: *Intelerad | Prod | Deployment FAILED* for `${{ github.repository }}` on branch `${{ github.ref_name }}`.\nView details: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>",
+            "text": ":x: *Intelerad | Prod | Deployment FAILED* for `${{github.repository}}` on branch `${{github.ref_name}}`.\nView details: <${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}>",
             "username": "GitHub Actions"
-          }' "${{ secrets.SLACK_WEBHOOK_URL }}"
+         }' ${{secrets.SLACK_WEBHOOK_URL}}
+         
       - name: Notify Slack on success
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{
-            "text": ":white_check_mark: *Intelerad | Prod | Deployment SUCCESSFUL* for `${{ github.repository }}` on branch `${{ github.ref_name }}`.\nView details: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>",
+            "text": ":white_check_mark: *Intelerad | Prod | Deployment SUCCESSFUL* for `${{github.repository}}` on branch `${{github.ref_name}}`.\nView details: <${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}>",
             "username": "GitHub Actions"
-          }' "${{ secrets.SLACK_WEBHOOK_URL }}"
+         }' ${{secrets.SLACK_WEBHOOK_URL}}
